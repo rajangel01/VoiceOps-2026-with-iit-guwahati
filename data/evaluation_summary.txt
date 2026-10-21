@@ -1,0 +1,14 @@
+Total evaluated questions: 52
+
+QUALITY CHECKS (keyword-based proxies, not human-verified accuracy)
+Baseline required-term pass rate: 18.37% (9/49)
+RAG required-term pass rate: 18.37% (9/49)
+Baseline no-forbidden-term rate: 87.50% (7/8)
+RAG no-forbidden-term rate: 100.00% (8/8)
+Gold-evidence retrieval hit rate: 70.21% (33/47)
+RAG refusal phrase rate on unanswerable questions: 60.00% (3/5)
+
+Caution: these are automatic indicators, not final correctness scores.
+Manually inspect answers, policy precedence, source relevance, and language.
+
+Scored CSV: C:\Users\RAJ\Downloads\Capstone_Project_Dataset_FTTT_2026\Capstone_Project_Dataset_FTTT_2026\data\scored_evaluation.csv
