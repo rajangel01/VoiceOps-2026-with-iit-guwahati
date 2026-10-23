@@ -1,32 +1,28 @@
 
+from pathlib import Path
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
+from src.rag_agent import respond
 
-app = FastAPI(
-    title="ZentroMart AI Support API",
-    description="API for the ZentroMart AI customer support agent",
-    version="1.0.0",
-)
+app = FastAPI(title="ZentroMart AI Support API")
 
-# Development ke liye frontend origins.
-# Production mein apne actual frontend domain tak restrict karna.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:3000",
-        "http://localhost:5173",
         "http://localhost:5174",
+        "http://localhost:5173",
     ],
-    allow_credentials=False,
-    allow_methods=["GET", "POST"],
-    allow_headers=["Content-Type", "Authorization"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
 class ChatRequest(BaseModel):
-    question: str = Field(min_length=1, max_length=2000)
+    question: str
 
 
 class ChatResponse(BaseModel):
@@ -36,17 +32,12 @@ class ChatResponse(BaseModel):
 
 @app.get("/")
 def home():
-    return {
-        "message": "ZentroMart AI Support API is running"
-    }
+    return {"message": "ZentroMart AI Support API is running"}
 
 
 @app.get("/health")
 def health():
-    return {
-        "status": "ok",
-        "service": "ZentroMart AI Support API"
-    }
+    return {"status": "ok"}
 
 
 @app.post("/chat", response_model=ChatResponse)
@@ -56,15 +47,20 @@ def chat(request: ChatRequest):
     if not question:
         raise HTTPException(
             status_code=400,
-            detail="Question cannot be empty"
+            detail="Please enter a question."
         )
 
-    # Temporary integration point:
-    # Yahan existing RAG agent ka actual function call karna hai.
-    raise HTTPException(
-        status_code=501,
-        detail=(
-            "FastAPI is ready, but the existing RAG "
-            "agent function must be connected."
-        ),
-    )
+    try:
+        answer = respond(question)
+
+        return ChatResponse(
+            answer=answer,
+            status="success"
+        )
+
+    except Exception as exc:
+        print(f"Chat error: {exc}")
+        raise HTTPException(
+            status_code=500,
+            detail="The AI support service could not generate a response. Check the backend logs."
+        ) from exc
